@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  username       String    @unique
+  email          String    @unique
+  password       String
+  gender         String?
+  favoriteGenres String?
+  birthdate      DateTime?
+  country        String?
+  createdAt      DateTime  @default(now())
+  role           String    @default("user")
+  reviews        Review[]
+}
+
+model Book {
+  id          Int         @id @default(autoincrement())
+  title       String
+  author      String
+  description String?
+  coverUrl    String?
+  publishedYr Int?
+  genres      BookGenre[]
+  reviews     Review[]
+}
+
+model Genre {
+  id    Int         @id @default(autoincrement())
+  name  String      @unique
+  books BookGenre[]
+}
+
+model BookGenre {
+  id      Int   @id @default(autoincrement())
+  book    Book  @relation(fields: [bookId], references: [id])
+  bookId  Int
+  genre   Genre @relation(fields: [genreId], references: [id])
+  genreId Int
+
+  @@unique([bookId, genreId])
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int
+  reviewTxt String?
+  createdAt DateTime @default(now())
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  book   Book @relation(fields: [bookId], references: [id])
+  bookId Int
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
